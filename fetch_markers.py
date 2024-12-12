@@ -19,6 +19,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
+                print(f"Processing file: {file_path}")
                 try:
                     with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
@@ -37,12 +38,14 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
 
                 # Process matches
                 for key, value in matches:
+                    print(f"Processing key: {key}, value: {value}")
                     if key == "TCID":
-                        # If a new TCID is encountered, store previous data
+                        # Save the previous group
                         if current_tcid and current_priority and current_component:
+                            print(f"Saving TCID: {current_tcid}, Priority: {current_priority}, Component: {current_component}")
                             priority_dict[current_priority][current_component][current_tcid].add(file)
                             component_dict[current_component][current_tcid].add(file)
-                        # Start a new TCID group
+                        # Start a new group
                         current_tcid = value
                         current_priority = None
                         current_component = None
@@ -51,16 +54,26 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     elif key == "component" and current_tcid:
                         current_component = value
 
-                # Store the last TCID group
+                # Save the last group
                 if current_tcid and current_priority and current_component:
+                    print(f"Final Save - TCID: {current_tcid}, Priority: {current_priority}, Component: {current_component}")
                     priority_dict[current_priority][current_component][current_tcid].add(file)
                     component_dict[current_component][current_tcid].add(file)
 
     # Debug output
     print("Priority Dictionary:")
-    print(priority_dict)
+    for priority, components in priority_dict.items():
+        print(f"Priority: {priority}")
+        for component, tcids in components.items():
+            print(f"  Component: {component}")
+            for tcid, files in tcids.items():
+                print(f"    TCID: {tcid}, Files: {files}")
+
     print("Component Dictionary:")
-    print(component_dict)
+    for component, tcids in component_dict.items():
+        print(f"Component: {component}")
+        for tcid, files in tcids.items():
+            print(f"  TCID: {tcid}, Files: {files}")
 
     # Ensure output folder exists
     os.makedirs(output_folder, exist_ok=True)
