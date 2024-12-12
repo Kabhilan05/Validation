@@ -28,9 +28,10 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 matches = re.findall(MARKER_PATTERN, content)
                 print(f"Matches found in {file}: {matches}")
 
-                tcid_priority_component = []
+                # Temporary storage for TCID, priority, and component
                 current_tcid = None
                 current_priority = None
+                current_component = None
 
                 for key, value in matches:
                     if key == "TCID":
@@ -38,13 +39,14 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     elif key == "priority" and current_tcid:
                         current_priority = value.lower()
                     elif key == "component" and current_tcid and current_priority:
-                        tcid_priority_component.append((current_tcid, current_priority, value))
+                        current_component = value
+                        # Store the data in the dictionaries
+                        priority_dict[current_priority][current_component][current_tcid].add(file)
+                        component_dict[current_component][current_tcid].add(file)
+                        # Reset for the next set
                         current_tcid = None
                         current_priority = None
-
-                for tcid, priority, component in tcid_priority_component:
-                    priority_dict[priority][component][tcid].add(file)
-                    component_dict[component][tcid].add(file)
+                        current_component = None
 
     print("Priority Dictionary:")
     print(priority_dict)
