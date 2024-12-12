@@ -2,16 +2,13 @@ import os
 import re
 from collections import defaultdict
 
-# Path to the test directory
+# Paths
 TESTS_DIR = "/var/jenkins_home/workspace/SSVAL/Validation/tests"
-
-# Regex pattern to extract custom markers
-MARKER_PATTERN = r"@pytest\.mark\.(\w+)\(\"(.*?)\"\)"
-
-# Output folder to store files
 OUTPUT_FOLDER = "/var/jenkins_home/workspace/SSVAL/output1"
 
-# Function to fetch and store markers and file names
+# Regex pattern for extracting markers
+MARKER_PATTERN = r"@pytest\.mark\.(\w+)\(\"(.*?)\"\)"
+
 def fetch_and_store_markers_with_files(test_dir, output_folder):
     priority_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     component_dict = defaultdict(lambda: defaultdict(set))
@@ -48,6 +45,11 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 for tcid, priority, component in tcid_priority_component:
                     priority_dict[priority][component][tcid].add(file)
                     component_dict[component][tcid].add(file)
+
+    print("Priority Dictionary:")
+    print(priority_dict)
+    print("Component Dictionary:")
+    print(component_dict)
 
     os.makedirs(output_folder, exist_ok=True)
 
