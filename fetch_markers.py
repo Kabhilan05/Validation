@@ -10,14 +10,15 @@ OUTPUT_FOLDER = "/var/jenkins_home/workspace/SSVAL/output1"
 MARKER_PATTERN = r"@pytest\.mark\.(\w+)\(\"(.*?)\"\)"
 
 def fetch_and_store_markers_with_files(test_dir, output_folder):
+    # Dictionaries to store priority and component data
     priority_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     component_dict = defaultdict(lambda: defaultdict(set))
 
+    # Walk through test directory
     for root, _, files in os.walk(test_dir):
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
-                print(f"Processing file: {file_path}")
                 try:
                     with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
@@ -25,36 +26,46 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     print(f"Error reading file {file_path}: {e}")
                     continue
 
+                # Extract all matches
                 matches = re.findall(MARKER_PATTERN, content)
                 print(f"Matches found in {file}: {matches}")
 
-                # Temporary storage for TCID, priority, and component
+                # State variables
                 current_tcid = None
                 current_priority = None
                 current_component = None
 
+                # Process matches
                 for key, value in matches:
                     if key == "TCID":
+                        # If a new TCID is encountered, store previous data
+                        if current_tcid and current_priority and current_component:
+                            priority_dict[current_priority][current_component][current_tcid].add(file)
+                            component_dict[current_component][current_tcid].add(file)
+                        # Start a new TCID group
                         current_tcid = value
-                    elif key == "priority" and current_tcid:
-                        current_priority = value.lower()
-                    elif key == "component" and current_tcid and current_priority:
-                        current_component = value
-                        # Store the data in the dictionaries
-                        priority_dict[current_priority][current_component][current_tcid].add(file)
-                        component_dict[current_component][current_tcid].add(file)
-                        # Reset for the next set
-                        current_tcid = None
                         current_priority = None
                         current_component = None
+                    elif key == "priority" and current_tcid:
+                        current_priority = value.lower()
+                    elif key == "component" and current_tcid:
+                        current_component = value
 
+                # Store the last TCID group
+                if current_tcid and current_priority and current_component:
+                    priority_dict[current_priority][current_component][current_tcid].add(file)
+                    component_dict[current_component][current_tcid].add(file)
+
+    # Debug output
     print("Priority Dictionary:")
     print(priority_dict)
     print("Component Dictionary:")
     print(component_dict)
 
+    # Ensure output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
+    # Save Priority Data
     for priority, components in priority_dict.items():
         priority_file = os.path.join(output_folder, f"{priority}_priority.txt")
         print(f"Creating priority file: {priority_file}")
@@ -71,6 +82,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     for filename in sorted(files):
                         pf.write(f"    - {filename}\n")
 
+    # Save Component Data
     for component, tcids in component_dict.items():
         component_file = os.path.join(output_folder, f"{component}.txt")
         print(f"Creating component file: {component_file}")
