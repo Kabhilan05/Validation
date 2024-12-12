@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 
 # Path to the test directory
-TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation"
+TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 
 # Regex pattern to extract custom markers
 MARKER_PATTERN = r"@pytest\.mark\.(\w+)\(\"(.*?)\"\)"
