@@ -9,7 +9,7 @@ TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation"
 MARKER_PATTERN = r"@pytest\.mark\.(\w+)\(\"(.*?)\"\)"
 
 # Output folder to store files
-OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
+OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output1"
 
 
 # Function to fetch and store markers and file names
