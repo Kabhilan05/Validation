@@ -34,7 +34,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 matches = re.findall(MARKER_PATTERN, content)
                 print(f"Matches found in {file}: {matches}")
 
-                # Track markers by order of appearance
+                # Process markers in sequence
                 current_tcid = None
                 current_priority = None
                 current_component = None
@@ -42,58 +42,55 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 for key, value in matches:
                     print(f"Processing key: {key}, value: {value}")
                     if key == "TCID":
-                        # Save the previous group if all values are set
+                        # Save the previous set if valid
                         if current_tcid and current_priority and current_component:
-                            print(f"Saving TCID: {current_tcid}, Priority: {current_priority}, Component: {current_component}")
                             priority_dict[current_priority][current_component][current_tcid].add(file)
                             component_dict[current_component][current_tcid].add(file)
-
-                        # Reset for the new TCID
+                        # Start a new TCID group
                         current_tcid = value
                         current_priority = None
                         current_component = None
 
-                    elif key == "priority" and current_tcid:
+                    elif key == "Priority" and current_tcid:
                         current_priority = value.lower()
 
-                    elif key == "component" and current_tcid and current_priority:
+                    elif key == "Component" and current_tcid and current_priority:
                         current_component = value
-                        # Save immediately since all conditions are now met
+                        # Save the complete set
                         print(f"Saving TCID: {current_tcid}, Priority: {current_priority}, Component: {current_component}")
                         priority_dict[current_priority][current_component][current_tcid].add(file)
                         component_dict[current_component][current_tcid].add(file)
-                        # Reset for next match
+                        # Reset for the next marker group
                         current_tcid = None
                         current_priority = None
                         current_component = None
+
+                # Save any remaining set after the loop
+                if current_tcid and current_priority and current_component:
+                    print(f"Saving final TCID: {current_tcid}, Priority: {current_priority}, Component: {current_component}")
+                    priority_dict[current_priority][current_component][current_tcid].add(file)
+                    component_dict[current_component][current_tcid].add(file)
 
     # Ensure output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
     # Save TCIDs in separate files and group files by priority and component
     for priority, components in priority_dict.items():
-        # Create a single file for the priority group
         priority_file = os.path.join(output_folder, f"{priority}_priority.txt")
         print(f"Creating priority file: {priority_file}")
         with open(priority_file, "w", encoding="utf-8") as pf:
             for component, tcids in components.items():
                 pf.write(f"Component: {component}\n")
                 for tcid, files in sorted(tcids.items()):
-                    # Save each TCID in its own file
                     tcid_file = os.path.join(output_folder, f"{tcid}.txt")
                     print(f"Creating TCID file: {tcid_file}")
                     with open(tcid_file, "w", encoding="utf-8") as tf:
                         for filename in sorted(files):
                             tf.write(f"{filename}\n")
-
-                    # Write TCID details into the priority file
                     pf.write(f"  TCID: {tcid}\n")
                     for filename in sorted(files):
                         pf.write(f"    - {filename}\n")
 
-        print(f"Priority group '{priority}' stored in: {priority_file}")
-
-    # Save components in separate files
     for component, tcids in component_dict.items():
         component_file = os.path.join(output_folder, f"{component}.txt")
         print(f"Creating component file: {component_file}")
@@ -103,7 +100,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 for filename in sorted(files):
                     cf.write(f"  - {filename}\n")
 
-    # Debug output to verify dictionaries
+    # Debugging dictionaries
     print("Priority Dictionary:")
     for priority, components in priority_dict.items():
         print(f"Priority: {priority}")
