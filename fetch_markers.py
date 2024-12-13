@@ -161,8 +161,11 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 current_priority = None
                 current_component = None
 
-                for key, value in matches:
+                for key, double_quoted_value, single_quoted_value in matches:
+                    # Use the non-empty value
+                    value = double_quoted_value or single_quoted_value
                     print(f"Processing key: {key}, value: {value}")
+
                     if key == "TCID":
                         # Save the previous set if valid
                         if current_tcid and current_priority and current_component:
@@ -207,11 +210,8 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     tcid_file = os.path.join(output_folder, f"{tcid}.txt")
                     print(f"Creating TCID file: {tcid_file}")
                     with open(tcid_file, "w", encoding="utf-8") as tf:
-                        tf.write(f"TCID: {tcid}\n")
-                        tf.write(f"Priority: {priority}\n")
-                        tf.write(f"Component: {component}\n")
                         for filename in sorted(files):
-                            tf.write(f"File: {filename}\n")
+                            tf.write(f"{filename}\n")
                     pf.write(f"  TCID: {tcid}\n")
                     for filename in sorted(files):
                         pf.write(f"    - {filename}\n")
@@ -222,7 +222,6 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
         with open(component_file, "w", encoding="utf-8") as cf:
             for tcid, files in sorted(tcids.items()):
                 cf.write(f"TCID: {tcid}\n")
-                cf.write(f"Component: {component}\n")
                 for filename in sorted(files):
                     cf.write(f"  - {filename}\n")
 
@@ -243,6 +242,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
 
 # Run the function
 fetch_and_store_markers_with_files(TESTS_DIR, OUTPUT_FOLDER)
+
 
 
 
