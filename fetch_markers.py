@@ -80,25 +80,25 @@
 #         print(f"Creating priority file: {priority_file}")
 #         with open(priority_file, "w", encoding="utf-8") as pf:
 #             for component, tcids in components.items():
-#                 # pf.write(f"Component: {component}\n")
+#                 pf.write(f"Component: {component}\n")
 #                 for tcid, files in sorted(tcids.items()):
 #                     tcid_file = os.path.join(output_folder, f"{tcid}.txt")
 #                     print(f"Creating TCID file: {tcid_file}")
 #                     with open(tcid_file, "w", encoding="utf-8") as tf:
 #                         for filename in sorted(files):
 #                             tf.write(f"{filename}\n")
-#                     # pf.write(f"  TCID: {tcid}\n")
+#                     pf.write(f"  TCID: {tcid}\n")
 #                     for filename in sorted(files):
-#                         pf.write(f"{filename}\n")
+#                         pf.write(f"    - {filename}\n")
 
 #     for component, tcids in component_dict.items():
 #         component_file = os.path.join(output_folder, f"{component}.txt")
 #         print(f"Creating component file: {component_file}")
 #         with open(component_file, "w", encoding="utf-8") as cf:
 #             for tcid, files in sorted(tcids.items()):
-#                 # cf.write(f"TCID: {tcid}\n")
+#                 cf.write(f"TCID: {tcid}\n")
 #                 for filename in sorted(files):
-#                     cf.write(f"{filename}\n")
+#                     cf.write(f"  - {filename}\n")
 
 #     # Debugging dictionaries
 #     print("Priority Dictionary:")
@@ -207,6 +207,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     tcid_file = os.path.join(output_folder, f"{tcid}.txt")
                     print(f"Creating TCID file: {tcid_file}")
                     with open(tcid_file, "w", encoding="utf-8") as tf:
+                        tf.write(f"TCID: {tcid}\n")
                         for filename in sorted(files):
                             tf.write(f"{filename}\n")
                     pf.write(f"  TCID: {tcid}\n")
@@ -239,5 +240,6 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
 
 # Run the function
 fetch_and_store_markers_with_files(TESTS_DIR, OUTPUT_FOLDER)
+
 
 
