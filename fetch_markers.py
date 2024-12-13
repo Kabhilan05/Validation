@@ -234,7 +234,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
     print(f"Creating keys file: {keys_file}")
     with open(keys_file, "w", encoding="utf-8") as kf:
         for key in sorted(keys_dict.keys()):
-            kf.write(f"Key: {key}\n")
+            kf.write(f"{key}\n")
 
     # Debugging dictionaries
     print("Priority Dictionary:")
