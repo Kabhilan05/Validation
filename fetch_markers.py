@@ -131,13 +131,14 @@ TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 MARKER_PATTERN = r"@pytest\.mark\.(\w+)\((?:\"(.*?)\"|'(.*?)')\)"
 
 # Output folder to store files
-OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output1"
+OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
 
 # Function to fetch and store markers and file names
 def fetch_and_store_markers_with_files(test_dir, output_folder):
     # Dictionary to group TCIDs and their files by priority and component
     priority_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     component_dict = defaultdict(lambda: defaultdict(set))
+    keys_dict = defaultdict(set)  # Dictionary to store all keys and their values
 
     # Walk through test directory and parse Python files
     for root, _, files in os.walk(test_dir):
@@ -165,6 +166,9 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     # Use the non-empty value
                     value = double_quoted_value or single_quoted_value
                     print(f"Processing key: {key}, value: {value}")
+
+                    # Store keys and values
+                    keys_dict[key].add(value)
 
                     if key == "TCID":
                         # Save the previous set if valid
@@ -225,6 +229,15 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 for filename in sorted(files):
                     cf.write(f"  - {filename}\n")
 
+    # Save all keys and their values to a file
+    keys_file = os.path.join(output_folder, "keys.txt")
+    print(f"Creating keys file: {keys_file}")
+    with open(keys_file, "w", encoding="utf-8") as kf:
+        for key, values in sorted(keys_dict.items()):
+            kf.write(f"Key: {key}\n")
+            for value in sorted(values):
+                kf.write(f"  - {value}\n")
+
     # Debugging dictionaries
     print("Priority Dictionary:")
     for priority, components in priority_dict.items():
@@ -242,6 +255,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
 
 # Run the function
 fetch_and_store_markers_with_files(TESTS_DIR, OUTPUT_FOLDER)
+
 
 
 
