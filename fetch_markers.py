@@ -128,7 +128,7 @@ from collections import defaultdict
 TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 
 # Regex pattern to extract custom markers
-MARKER_PATTERN = r"@pytest\\.mark\\.(\\w+)\\(\"(.*?)\"\)"
+MARKER_PATTERN = r"@pytest\.mark\.(\w+)\((?:\"(.*?)\"|'(.*?)')\)"
 
 # Output folder to store files
 OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
