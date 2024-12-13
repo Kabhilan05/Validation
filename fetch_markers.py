@@ -167,8 +167,8 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                     value = double_quoted_value or single_quoted_value
                     print(f"Processing key: {key}, value: {value}")
 
-                    # Store keys and values
-                    keys_dict[key].add(value)
+                    # Store keys (no values needed now)
+                    keys_dict[key] = None
 
                     if key == "TCID":
                         # Save the previous set if valid
@@ -229,14 +229,12 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
                 for filename in sorted(files):
                     cf.write(f"  - {filename}\n")
 
-    # Save all keys and their values to a file
+    # Save only the keys (no values) to a file
     keys_file = os.path.join(output_folder, "keys.txt")
     print(f"Creating keys file: {keys_file}")
     with open(keys_file, "w", encoding="utf-8") as kf:
-        for key, values in sorted(keys_dict.items()):
+        for key in sorted(keys_dict.keys()):
             kf.write(f"Key: {key}\n")
-            for value in sorted(values):
-                kf.write(f"  - {value}\n")
 
     # Debugging dictionaries
     print("Priority Dictionary:")
@@ -255,6 +253,7 @@ def fetch_and_store_markers_with_files(test_dir, output_folder):
 
 # Run the function
 fetch_and_store_markers_with_files(TESTS_DIR, OUTPUT_FOLDER)
+
 
 
 
