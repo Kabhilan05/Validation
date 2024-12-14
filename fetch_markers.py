@@ -274,6 +274,8 @@ OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
 def fetch_and_store_priority_component_files(test_dir, output_folder):
     # Dictionary to map (priority, component) to a set of filenames
     priority_component_dict = defaultdict(set)
+    # Set to store all unique components
+    all_components = set()
 
     # Walk through the test directory and parse Python files
     for root, _, files in os.walk(test_dir):
@@ -296,6 +298,9 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
                 priorities = {match[0] or match[1] for match in priority_matches}
                 components = {match[0] or match[1] for match in component_matches}
 
+                # Add components to the set of all components
+                all_components.update(components)
+
                 # Map each combination of priority and component to the file
                 for priority in priorities:
                     for component in components:
@@ -312,6 +317,14 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
         with open(output_file, "w", encoding="utf-8") as f:
             for filename in sorted(files):
                 f.write(f"{filename}\n")
+
+    # Write all unique components to components.txt
+    components_file = os.path.join(output_folder, "components.txt")
+    print(f"Creating components file: {components_file}")
+    with open(components_file, "w", encoding="utf-8") as f:
+        for component in sorted(all_components):
+            f.write(f"{component}\n")
+
     print(f"Files have been created in {output_folder}")
 
 # Run the function
