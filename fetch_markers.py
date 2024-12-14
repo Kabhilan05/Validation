@@ -258,19 +258,22 @@
 
 import os
 import re
+from collections import defaultdict
 
 # Path to the test directory
 TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 
-# Regex pattern to extract Component markers
+# Regex patterns to extract Priority and Component markers
+PRIORITY_PATTERN = r"@pytest\.mark\.Priority\((?:\"(.*?)\"|'(.*?)')\)"
 COMPONENT_PATTERN = r"@pytest\.mark\.Component\((?:\"(.*?)\"|'(.*?)')\)"
 
-# Output file to store components
-OUTPUT_FILE = r"/var/jenkins_home/workspace/SSVAL/output/components.txt"
+# Output folder to store files
+OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
 
-# Function to fetch and store components
-def fetch_and_store_components(test_dir, output_file):
-    components = set()  # Use a set to avoid duplicates
+# Function to fetch and store filenames based on Priority and Component
+def fetch_and_store_priority_component_files(test_dir, output_folder):
+    # Dictionary to map (priority, component) to a set of filenames
+    priority_component_dict = defaultdict(set)
 
     # Walk through the test directory and parse Python files
     for root, _, files in os.walk(test_dir):
@@ -285,23 +288,35 @@ def fetch_and_store_components(test_dir, output_file):
                     print(f"Error reading file {file_path}: {e}")
                     continue
 
-                # Extract components using regex
-                matches = re.findall(COMPONENT_PATTERN, content)
-                for double_quoted_value, single_quoted_value in matches:
-                    value = double_quoted_value or single_quoted_value
-                    components.add(value)
+                # Extract Priority and Component markers using regex
+                priority_matches = re.findall(PRIORITY_PATTERN, content)
+                component_matches = re.findall(COMPONENT_PATTERN, content)
+
+                # Use the non-empty values from regex matches
+                priorities = {match[0] or match[1] for match in priority_matches}
+                components = {match[0] or match[1] for match in component_matches}
+
+                # Map each combination of priority and component to the file
+                for priority in priorities:
+                    for component in components:
+                        key = (priority.lower(), component)
+                        priority_component_dict[key].add(file)
 
     # Ensure the output folder exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
 
-    # Write components to the output file
-    with open(output_file, "w", encoding="utf-8") as f:
-        for component in sorted(components):
-            f.write(f"{component}\n")
-    print(f"Components have been stored in {output_file}")
+    # Write filenames to separate files based on priority and component
+    for (priority, component), files in priority_component_dict.items():
+        output_file = os.path.join(output_folder, f"{priority}_{component}.txt")
+        print(f"Creating file: {output_file}")
+        with open(output_file, "w", encoding="utf-8") as f:
+            for filename in sorted(files):
+                f.write(f"{filename}\n")
+    print(f"Files have been created in {output_folder}")
 
 # Run the function
-fetch_and_store_components(TESTS_DIR, OUTPUT_FILE)
+fetch_and_store_priority_component_files(TESTS_DIR, OUTPUT_FOLDER)
+
 
 
 
