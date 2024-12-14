@@ -271,11 +271,6 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
                 components = {match[0] or match[1] for match in component_matches} or {"None"}
                 tcids = {match[0] or match[1] for match in tcid_matches} or {"None"}
 
-                # Add "None" explicitly to all sets as default
-                priorities.add("None")
-                components.add("None")
-                tcids.add("None")
-
                 # Add components and TCIDs to their respective sets
                 all_components.update(components)
                 all_tcids.update(tcids)
@@ -298,7 +293,6 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
         output_file = os.path.join(output_folder, f"{priority}_{component}.txt")
         print(f"Creating file: {output_file}")
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write("None\n")  # Add None as the first entry
             for filename in sorted(files):
                 f.write(f"{filename}\n")
 
@@ -306,7 +300,8 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     components_file = os.path.join(output_folder, "components.txt")
     print(f"Creating components file: {components_file}")
     with open(components_file, "w", encoding="utf-8") as f:
-        f.write("None\n")  # Add None as the first entry
+        if not all_components:
+            f.write("None\n")
         for component in sorted(all_components):
             f.write(f"{component}\n")
 
@@ -314,7 +309,8 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     tcid_file = os.path.join(output_folder, "TCID.txt")
     print(f"Creating TCID file: {tcid_file}")
     with open(tcid_file, "w", encoding="utf-8") as f:
-        f.write("None\n")  # Add None as the first entry
+        if not all_tcids:
+            f.write("None\n")
         for tcid in sorted(all_tcids):
             f.write(f"{tcid}\n")
 
@@ -323,7 +319,6 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
         tcid_file = os.path.join(output_folder, f"{tcid}.txt")
         print(f"Creating TCID file: {tcid_file}")
         with open(tcid_file, "w", encoding="utf-8") as f:
-            f.write("None\n")  # Add None as the first entry
             for filename in sorted(files):
                 f.write(f"{filename}\n")
 
