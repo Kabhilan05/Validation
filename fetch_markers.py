@@ -230,9 +230,9 @@ from collections import defaultdict
 TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 
 # Regex patterns to extract Priority, Component, and TCID markers
-PRIORITY_PATTERN = r"@pytest\.mark\.Priority\((?:\"(.*?)\"|'(.*?)')\)"
-COMPONENT_PATTERN = r"@pytest\.mark\.Component\((?:\"(.*?)\"|'(.*?)')\)"
-TCID_PATTERN = r"@pytest\.mark\.TCID\((?:\"(.*?)\"|'(.*?)')\)"
+PRIORITY_PATTERN = r"@pytest\\.mark\\.Priority\\((?:\"(.*?)\"|'(.*?)')\\)"
+COMPONENT_PATTERN = r"@pytest\\.mark\\.Component\\((?:\"(.*?)\"|'(.*?)')\\)"
+TCID_PATTERN = r"@pytest\\.mark\\.TCID\\((?:\"(.*?)\"|'(.*?)')\\)"
 
 # Output folder to store files
 OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
@@ -267,9 +267,14 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
                 tcid_matches = re.findall(TCID_PATTERN, content)
 
                 # Use the non-empty values from regex matches
-                priorities = {match[0] or match[1] for match in priority_matches}
-                components = {match[0] or match[1] for match in component_matches}
-                tcids = {match[0] or match[1] for match in tcid_matches}
+                priorities = {match[0] or match[1] for match in priority_matches} or {"None"}
+                components = {match[0] or match[1] for match in component_matches} or {"None"}
+                tcids = {match[0] or match[1] for match in tcid_matches} or {"None"}
+
+                # Add "None" explicitly to all sets as default
+                priorities.add("None")
+                components.add("None")
+                tcids.add("None")
 
                 # Add components and TCIDs to their respective sets
                 all_components.update(components)
@@ -322,5 +327,3 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
 
 # Run the function
 fetch_and_store_priority_component_files(TESTS_DIR, OUTPUT_FOLDER)
-
-
