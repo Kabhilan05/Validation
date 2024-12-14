@@ -298,6 +298,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
         output_file = os.path.join(output_folder, f"{priority}_{component}.txt")
         print(f"Creating file: {output_file}")
         with open(output_file, "w", encoding="utf-8") as f:
+            f.write("None\n")  # Add None as the first entry
             for filename in sorted(files):
                 f.write(f"{filename}\n")
 
@@ -305,6 +306,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     components_file = os.path.join(output_folder, "components.txt")
     print(f"Creating components file: {components_file}")
     with open(components_file, "w", encoding="utf-8") as f:
+        f.write("None\n")  # Add None as the first entry
         for component in sorted(all_components):
             f.write(f"{component}\n")
 
@@ -312,6 +314,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     tcid_file = os.path.join(output_folder, "TCID.txt")
     print(f"Creating TCID file: {tcid_file}")
     with open(tcid_file, "w", encoding="utf-8") as f:
+        f.write("None\n")  # Add None as the first entry
         for tcid in sorted(all_tcids):
             f.write(f"{tcid}\n")
 
@@ -320,6 +323,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
         tcid_file = os.path.join(output_folder, f"{tcid}.txt")
         print(f"Creating TCID file: {tcid_file}")
         with open(tcid_file, "w", encoding="utf-8") as f:
+            f.write("None\n")  # Add None as the first entry
             for filename in sorted(files):
                 f.write(f"{filename}\n")
 
