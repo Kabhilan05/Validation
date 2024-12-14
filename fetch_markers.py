@@ -263,9 +263,10 @@ from collections import defaultdict
 # Path to the test directory
 TESTS_DIR = r"/var/jenkins_home/workspace/SSVAL/Validation/tests"
 
-# Regex patterns to extract Priority and Component markers
+# Regex patterns to extract Priority, Component, and TCID markers
 PRIORITY_PATTERN = r"@pytest\.mark\.Priority\((?:\"(.*?)\"|'(.*?)')\)"
 COMPONENT_PATTERN = r"@pytest\.mark\.Component\((?:\"(.*?)\"|'(.*?)')\)"
+TCID_PATTERN = r"@pytest\.mark\.TCID\((?:\"(.*?)\"|'(.*?)')\)"
 
 # Output folder to store files
 OUTPUT_FOLDER = r"/var/jenkins_home/workspace/SSVAL/output"
@@ -276,6 +277,8 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     priority_component_dict = defaultdict(set)
     # Set to store all unique components
     all_components = set()
+    # Set to store all unique TCIDs
+    all_tcids = set()
 
     # Walk through the test directory and parse Python files
     for root, _, files in os.walk(test_dir):
@@ -290,16 +293,19 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
                     print(f"Error reading file {file_path}: {e}")
                     continue
 
-                # Extract Priority and Component markers using regex
+                # Extract Priority, Component, and TCID markers using regex
                 priority_matches = re.findall(PRIORITY_PATTERN, content)
                 component_matches = re.findall(COMPONENT_PATTERN, content)
+                tcid_matches = re.findall(TCID_PATTERN, content)
 
                 # Use the non-empty values from regex matches
                 priorities = {match[0] or match[1] for match in priority_matches}
                 components = {match[0] or match[1] for match in component_matches}
+                tcids = {match[0] or match[1] for match in tcid_matches}
 
-                # Add components to the set of all components
+                # Add components and TCIDs to their respective sets
                 all_components.update(components)
+                all_tcids.update(tcids)
 
                 # Map each combination of priority and component to the file
                 for priority in priorities:
@@ -324,6 +330,13 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     with open(components_file, "w", encoding="utf-8") as f:
         for component in sorted(all_components):
             f.write(f"{component}\n")
+
+    # Write all unique TCIDs to TCID.txt
+    tcid_file = os.path.join(output_folder, "TCID.txt")
+    print(f"Creating TCID file: {tcid_file}")
+    with open(tcid_file, "w", encoding="utf-8") as f:
+        for tcid in sorted(all_tcids):
+            f.write(f"{tcid}\n")
 
     print(f"Files have been created in {output_folder}")
 
