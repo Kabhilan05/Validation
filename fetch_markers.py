@@ -54,7 +54,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
                 # Map each combination of priority and component to the file
                 for priority in priorities:
                     for component in components:
-                        key = (priority.lower(), component)
+                        key = (priority, component)
                         priority_component_dict[key].add(file)
 
                 # Map each TCID to the file
@@ -66,7 +66,8 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
 
     # Write filenames to separate files based on priority and component
     for (priority, component), files in priority_component_dict.items():
-        output_file = os.path.join(output_folder, f"{priority}_{component}.txt")
+        formatted_priority = priority.capitalize()  # Capitalize priority
+        output_file = os.path.join(output_folder, f"{formatted_priority}-{component}.txt")
         print(f"Creating file: {output_file}")
         with open(output_file, "w", encoding="utf-8") as f:
             for filename in sorted(files):
