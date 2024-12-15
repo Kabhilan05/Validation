@@ -67,7 +67,7 @@ def fetch_and_store_priority_component_files(test_dir, output_folder):
     # Write filenames to separate files based on priority and component
     for (priority, component), files in priority_component_dict.items():
         formatted_priority = priority.capitalize()  # Capitalize priority
-        output_file = os.path.join(output_folder, f"{formatted_priority}-{component}.txt")
+        output_file = os.path.join(output_folder, f"{formatted_priority}_{component}.txt")
         print(f"Creating file: {output_file}")
         with open(output_file, "w", encoding="utf-8") as f:
             for filename in sorted(files):
